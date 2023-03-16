@@ -1,0 +1,7 @@
+*.uvguix.*
+*.uvoptx
+*.scvd
+DebugConfig/
+Listings/
+Objects/
+RTE/

@@ -1,5 +1,5 @@
 /********************************************************************************
-* Name: KeyPad.h
+* Name: KeyPad.h (interface)
 * Author(s): Noah Grant, Wyatt Richard
 * Date: January 25, 2023
 * Description: Keypad Pad functions to initialize, and check status.

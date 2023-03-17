@@ -113,7 +113,7 @@
 *									GLOBAL VARIABLES									  						*
 ******************************************************************/	
 	
-extern uint32_t Global_UltraEcho;
+static uint32_t Global_UltraEcho;
 
 
 /******************************************************************
@@ -129,7 +129,7 @@ void Ultra_InitTrigger(void){
 	// Configure GPIO Pin
 	ENABLE_GPIO_CLOCK(A);										// Enable GPIO Port A
 	GPIO_MODER_SET(A, 12, GPIO_MODE_AF);		// Set MODE to AF
-	// ??																		// TIM16 CH1
+	GPIO_AFR_SET(A, 12, 1);									// TIM16 CH1
 	GPIO_OTYPER_SET(A, 12, GPIO_OTYPE_PP);	// Set OTYPE to Push-pull
 	GPIO_PUPDR_SET(A, 12, GPIO_PUPD_NO);		// Set PUPD to No pull-up/pull-down
 	
@@ -140,19 +140,17 @@ void Ultra_InitTrigger(void){
 		// 1us = (Prescaler + 1) / 72MHz
 		// (Prescaler + 1) = 72
 		// Prescaler = 71
-	// ??																					// Set TIM16 counting direction to upcounting
 	FORCE_BITS(TIM16->ARR, 0xFFFFUL, 100001UL);		// Set ARR to 100ms (100-500ms)
 		//    Repeating Counter Period = ARR + 1
 	SET_BITS(TIM16->CR1, TIM_CR1_ARPE);						// Enable ARR preload (ARPE) in CR1
 	SET_BITS(TIM16->BDTR, TIM_BDTR_MOE);					// Set main output enabled (MOE) in BDTR
 	
 	// Configure TIM16 CH1 for OCM with PWM
-	// ?? Check the line below because I don't think that TIM16 has CCMR2
 	SET_BITS(TIM16->CCMR1, TIM_CCMR1_OC1M);				// Set TIM16 to PWM mode
 	SET_BITS(TIM16->CCMR1, TIM_CCMR1_OC1PE);			// Enable Output Compare Preload (OC1PE)
 	SET_BITS(TIM16->CCER, TIM_CCER_CC1E);					// Enable Regular Output Channel for CH1
-	CLEAR_BITS(TIM1->CCER, TIM_CCER_CC1P);				// Make CH1 active HI
-	// ??																					// Set CH1 CCR1 initial output waveform on-time to 10us PWM pulse width
+	CLEAR_BITS(TIM16->CCER, TIM_CCER_CC1P);				// Make CH1 active HI
+	FORCE_BITS(TIM16->CCR1, 0xFFFFUL, 10UL);		// Set CH1 CCR1 initial output waveform on-time to 10us PWM pulse width
 	
 	// Configure TIM16 CH1 for PWM (repeating mode)
 	SET_BITS(TIM16->EGR, TIM_EGR_UG);							// Force an update event to prelaod all the registers
@@ -176,16 +174,16 @@ void Ultra_InitEcho(void){
 	// Configure GPIO Pin
 	ENABLE_GPIO_CLOCK(C);										// Enable GPIO Port C
 	GPIO_MODER_SET(C, 7, GPIO_MODE_AF);			// Set MODE to AF
-	// ??																		// TIM3 CH2
+	GPIO_AFR_SET(C, 7, 2);									// TIM3 CH2
 	GPIO_PUPDR_SET(C, 7, GPIO_PUPD_NO);			// Set PUPD to No pull-up/pull-down
 	
 	// Configure TIM3 CH2 (TI2)
 	SET_BITS(RCC->APB1ENR, RCC_APB1ENR_TIM3EN);		// Turn on clock for TIM3																			
-	SET_BITS(TIM16->PSC, 71UL);										// Set PSC so it counts in 1us
+	SET_BITS(TIM3->PSC, 71UL);										// Set PSC so it counts in 1us
 		// 1us = (Prescaler + 1) / 72MHz
 		// (Prescaler + 1) = 72
 		// Prescaler = 71
-	// ??																					// Set TIM3 counting direction to upcounting
+	CLEAR_BITS(TIM3->CR1, TIM_CR1_DIR);						// Set TIM3 counting direction to upcounting
 	FORCE_BITS(TIM3->ARR, 0xFFFFUL, 0xFFFF);			// Set ARR to max value
 	CLEAR_BITS(TIM3->CCMR1, TIM_CCMR1_IC2F);			// Set TIM3 TI2 to No Input Filtering
 	CLEAR_BITS(TIM3->CCMR1, TIM_CCMR1_IC2PSC);		// Set TI2 Prescaler to zero to capture every valid transition event		
@@ -204,9 +202,9 @@ void Ultra_InitEcho(void){
 	SET_BITS(TIM3->CCER, TIM_CCER_CC2E);
 
 	// Enable TIM3 Interrupt on TI2 falling edge
-	SET_BITS(TIM3->DIER, TIM_DIER_CC1IE);		// Enable TIM3 TI2 to generate interrupt request
-	// ??																		// Set TIM3 IRQ priority to 9 (<10) in NVIC
-	// ??																		// Enable TIM3 IRQ in NVIC
+	SET_BITS(TIM3->DIER, TIM_DIER_CC1IE);		// Enable TIM3 TI2 to generate interrupt request													
+	NVIC_SetPriority(TIM3_IRQn, 9);					// Set TIM3 IRQ priority to 9 (<10) in NVIC
+	NVIC_EnableIRQ(TIM3_IRQn);							// Enable TIM3 IRQ in NVIC
 	SET_BITS(TIM3->CR1, TIM_CR1_CEN);				// Enable TIM3 main counter
 }
 
@@ -230,8 +228,10 @@ void Ultra_EchoIRQ(void){
 uint32_t Ultra_ReadSensor(void){
 	uint32_t distance = 0;
 	
+	Ultra_StartTrigger();
+	
 	// Calculate distance to object
-	distance = Global_UltraEcho;		// ?? Need to figure out equation
+	distance = Global_UltraEcho / 59;		// Equation from W7 slides (#6)
 	
 	return(distance);
 }

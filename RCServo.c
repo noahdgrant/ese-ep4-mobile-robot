@@ -144,7 +144,6 @@ int16_t RCServo_SetAngle(int16_t angle){
 	}
 	
 	// 3. Write the new target PW into TIM15 CR2 
-		// ?? Is this supposed to be CCR2? CR2 doesn't look like it has the correct functionality and we used CCR2 to set this up initally
 	FORCE_BITS(TIM15->CCR2, 0xFFFFUL, (uint16_t)PW);
 	
 	// 4. return the calculated PW for printout in main()

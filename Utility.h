@@ -46,7 +46,7 @@
 #define GPIO_PUPD_PU 1UL		// 01: Pull-up
 #define GPIO_PUPD_PD 2UL		// 10: Pull-down
 
-#define GPIO_ARF_SET(port, pin, mode) FORCE_BITS((GPIOx(port)->AFR[pin >> 3UL]), (15UL << ((pin & 7UL) * 4)), ((mode) << ((pin & 7UL) * 4)))
+#define GPIO_AFR_SET(port, pin, mode) FORCE_BITS((GPIOx(port)->AFR[pin >> 3UL]), (15UL << ((pin & 7UL) * 4)), ((mode) << ((pin & 7UL) * 4)))
 
 #define GPIO_OSPEEDR_SET( port, pin, mode ) FORCE_BITS ( (GPIOx( port ) -> OSPEEDR), (3UL<<((pin)*2)), ((mode)<<((pin)*2)))
 #define GPIO_OSPEED_LOW 0UL		// x0: Low speed

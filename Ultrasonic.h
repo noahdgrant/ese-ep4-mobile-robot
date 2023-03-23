@@ -13,7 +13,7 @@
 void Ultra_InitTrigger(void);
 void Ultra_StartTrigger(void);
 void Ultra_InitEcho(void);
-void Ultra_EchoIRQ(void);
+uint8_t Ultra_EchoRx(void);
 uint32_t Ultra_ReadSensor(void);
 
 #endif

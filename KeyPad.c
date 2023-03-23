@@ -1,5 +1,5 @@
 /********************************************************************************
-* Name: KeyPad.c
+* Name: KeyPad.c (implementation)
 * Author(s): Noah Grant, Wyatt Richard
 * Date: February 17, 2023
 * Description: Keypad Pad functions to initialize, and check status.

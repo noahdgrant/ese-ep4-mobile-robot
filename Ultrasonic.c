@@ -40,8 +40,8 @@ void Ultra_InitTrigger(void){
 		// 1us = (Prescaler + 1) / 72MHz
 		// (Prescaler + 1) = 72
 		// Prescaler = 71
-	FORCE_BITS(TIM16->ARR, 0xFFFFUL, 100001UL);		// Set ARR to 100ms (100-500ms)
-		// Repeating Counter Period = ARR + 1
+	FORCE_BITS(TIM16->ARR, 0xFFFFUL, 99999UL);		// Set ARR to 100ms (100-500ms)
+		// ARR = Repeating Counter Period - 1
 	SET_BITS(TIM16->CR1, TIM_CR1_ARPE);						// Enable ARR preload (ARPE) in CR1
 	SET_BITS(TIM16->BDTR, TIM_BDTR_MOE);					// Set main output enabled (MOE) in BDTR
 	

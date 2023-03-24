@@ -1,8 +1,8 @@
 /******************************************************************************
 * Name: main.c (client)
 * Author(s): Noah Grant, Wyatt Richard
-* Date: March 17, 2023
-* Description: Ultrasonic control for mobile robot.
+* Date: March 24, 2023
+* Description: DC motor control for mobile robot.
 ******************************************************************************/
 
 #include "SysClock.h"
@@ -39,19 +39,20 @@ int main(void){
 	UART_printf("3. LEFT 100 duty cycle\n");
 	UART_printf("4. RIGHT 0 duty cycle\n");
 	UART_printf("5. RIGHT 50 duty cycle\n");
-	UART_printf("6. RIGHT 100 duty cycle\n");	
-	
-	/*UART_printf("0. 0% duty cycle\n");
-	UART_printf("1. 10% duty cycle\n");
-	UART_printf("2. 20% duty cycle\n");
-	UART_printf("3. 30% duty cycle\n");
-	UART_printf("4. 40% duty cycle\n");
-	UART_printf("5. 50% duty cycle\n");
-	UART_printf("6. 60% duty cycle\n");
-	UART_printf("7. 70% duty cycle\n");
-	UART_printf("8. 80% duty cycle\n");
-	UART_printf("9. 90% duty cycle\n");
-	UART_printf("-. 100% duty cycle\n");*/
+	UART_printf("6. RIGHT 100 duty cycle\n");
+	UART_printf("-----------------------\n");
+	UART_printf("Y. STOP both motors\n");
+	UART_printf("U. FWD 50%% both motors\n");
+	UART_printf("I. FWD 100%% both motors\n");
+	UART_printf("O. BWD 50%% both motors \n");
+	UART_printf("P. BWD 100%% both motors\n");
+	UART_printf("H. 0-point left turn\n");
+	UART_printf("J. 0-point right turn\n");
+	UART_printf("V. left motor 50%% FWD\n");
+	UART_printf("B. left motor 50%% BWD\n");
+	UART_printf("N. right motor 50%% FWD\n");
+	UART_printf("M. right motor 50%% BWD\n");
+	UART_printf("\nOUTPUT:\n\n");
 
 	// PROGRAM LOOP
 	while(1){
@@ -116,6 +117,98 @@ int main(void){
 			case('6'):{
 				UART_printf("RIGHT 100\n");
 				DCMotor_SetSpeed(DCMOTOR_RIGHT, 100);
+				break;
+			}
+			// Combined control
+			// STOP both motors
+			case('y'):{
+				UART_printf("STOP both motors\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 0);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 0);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_STOP);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_STOP);
+				break;
+			}
+			// FWD 50% both motors
+			case('u'):{
+				UART_printf("FWD 50%% both motors\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
+				break;
+			}
+			// FWD 100% both motors
+			case('i'):{
+				UART_printf("FWD 100%% both motors\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 100);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 100);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
+				break;
+			}
+			// BWD 50% both motors
+			case('o'):{
+				UART_printf("BWD 50%% both motors\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
+				break;
+			}
+			// BWD 100% both motors
+			case('p'):{
+				UART_printf("BWD 100%% both motors\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 100);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 100);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
+				break;
+			}
+			// 0-point left turn
+			case('h'):{
+				UART_printf("0-point left turn\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
+				break;
+			}
+			// 0-point right turn
+			case('j'):{
+				UART_printf("0-point right turn\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
+				break;
+			}
+			// left motor 50% FWD
+			case('v'):{
+				UART_printf("Left motor 50%% FWD\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
+				break;
+			}
+			// left motor 50% BWD
+			case('b'):{
+				UART_printf("Left motor 50%% BWD\n");
+				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
+				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
+				break;
+			}
+			// right motor 50% FWD
+			case('n'):{
+				UART_printf("Right motor 50%% FWD\n");
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
+				break;
+			}
+			// left motor 50% BWD
+			case('m'):{
+				UART_printf("Right motor 50%% BWD\n");
+				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
+				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
 				break;
 			}
 			default:{

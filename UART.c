@@ -69,7 +69,7 @@ static void UART2_Config(void){
 ******************************************************************/
 
 /******************************************
-* UART2_init() - Initialize UART2 setting.
+* UART2_Init() - Initialize UART2 setting.
 * No inputs.
 * No return value.
 ******************************************/

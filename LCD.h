@@ -89,5 +89,6 @@ void LCD_puts(char* str);
 void LCD_printf(char* str, ... );
 
 void LCD_CustomChar(uint8_t character[8], uint8_t address);
+void LCD_SetCustomCharIdentifier(uint8_t character[8]);
 
 #endif

@@ -12,6 +12,13 @@
 
 
 /******************************************************************
+*												STATIC VARIABLES									  			*
+******************************************************************/	
+
+static char customChar[8];
+
+
+/******************************************************************
 *												PRIVATE FUNCTIONS													*
 ******************************************************************/
 /*************************************************
@@ -158,10 +165,34 @@ void LCD_data(uint8_t data){
 *************************************************/
 void LCD_putc(unsigned char ch){
 	if(ch == '\n'){
-		LCD_cmd(LCD_CMD_SETDDADDR | LCD_DDRAM_ADDR_LINE2); 		// Maybe toggle in the future.
+		LCD_cmd(LCD_CMD_SETDDADDR | LCD_DDRAM_ADDR_LINE2);
 	}
 	else if(ch == '\r'){
 		LCD_HomeCursor();
+	}
+	else if(ch == customChar[0]){
+		LCD_data(0);
+	}
+	else if(ch == customChar[1]){
+		LCD_data(1);
+	}
+	else if(ch == customChar[2]){
+		LCD_data(2);
+	}
+	else if(ch == customChar[3]){
+		LCD_data(3);
+	}
+	else if(ch == customChar[4]){
+		LCD_data(4);
+	}
+	else if(ch == customChar[5]){
+		LCD_data(5);
+	}
+	else if(ch == customChar[6]){
+		LCD_data(6);
+	}
+	else if(ch == customChar[7]){
+		LCD_data(7);
 	}
 	else{
 		LCD_data(ch);
@@ -201,35 +232,25 @@ void LCD_printf(char* str, ... ){
 * No return value.
 ************************************************************/
 void LCD_CustomChar(uint8_t character[8], uint8_t address){
-		/*
-	example custom font: smile face
-	// Select CGRAM and set address to 0x00
-	LCD_SendCmd(0x40 + 0x00);
-	Delay(4); // Wait > 39us
-	// Define smile face
-	LCD_SendData(0x00); // 1st row byte
-	LCD_SendData(0x0A); // 2nd row byte
-	LCD_SendData(0x0A); // 3rd row byte
-	LCD_SendData(0x0A); // 4th row byte
-	LCD_SendData(0x00); // 5th row byte
-	LCD_SendData(0x11); // 6th row byte
-	LCD_SendData(0x0E); // 7th row byte
-	LCD_SendData(0x00); // 8th row byte
-	// Select display RAM & set address to 0
-	LCD_SendCmd(LCD_CMD_SETDDADDR); // First character
-	LCD_SendData(0x00); // Display the font
-	*/
-	
-	//up to 8 custom characters can be added can be accessed in cgram character code 0x00 to 0x07
-	LCD_cmd(LCD_CMD_CGRAMADDR + address);
-	Delay_ms(4); 								// Wait > 39us
+	//up to 8 custom characters can be added can be accessed in cgram character code 0x00 to 0x07 
+	address &= 0x7; // only 8 available slots
+	LCD_cmd(LCD_CMD_CGRAMADDR | (address << 3)); 		//0x40 +
+	Delay_ms(4); 																		// Wait > 39us
 	for(int i=0; i<8; i++){
 		LCD_data(character[i]);
 	}
 
 	// Select display RAM & set address to 0
-	LCD_cmd(LCD_CMD_SETDDADDR); 				// First character
-	//LCD_data(address); 		// Display the font
+	LCD_cmd(LCD_CMD_SETDDADDR + address); 				// First character
 }
 
-
+/************************************************************************************************
+* LCD_SetCustomCharIdentifier() - Sets the characters to be to be replaced by custom characters.
+* No inputs.
+* No return value.
+************************************************************************************************/
+void LCD_SetCustomCharIdentifier(uint8_t character[8]){
+	for(int i=0; i<8; i++){
+		customChar[i] = character[i];
+	}
+}

@@ -5,8 +5,9 @@
 * Description: Nucleo board LED functions.
 ********************************************************************************/
 
-# include "stm32f303xe.h"
-# include "LED.h"
+#include "stm32f303xe.h"
+#include "LED.h"
+#include "Utility.h"
 
 
 /******************************************************************
@@ -55,11 +56,7 @@ void LED_Toggle(void){
 * number_of_seconds		- The number of seconds to turn the LED ON.
 * No return value.
 ******************************************/
-void LED_Flash(int number_of_seconds){
-		int count = 0;
-		int time = number_of_seconds * 500000;
-	
-		for(count; count < time; count++);
-		
+void LED_Flash(uint32_t number_of_seconds){
+		Delay_ms(number_of_seconds * 1000);
 		LED_Toggle();
 }

@@ -1,0 +1,4 @@
+To-Do:
+- decrease delay to reduce stepper choppiness
+- fix servo centre
+- DC motor needs to be greater than 50% PW

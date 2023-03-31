@@ -2,7 +2,7 @@
 * Name: main.c (client)
 * Author(s): Noah Grant, Wyatt Richard
 * Date: March 24, 2023
-* Description: DC motor control for mobile robot.
+* Description: LCD control for mobile robot.
 ******************************************************************************/
 
 #include "SysClock.h"
@@ -15,206 +15,183 @@
 #include "KeyPad.h"
 #include "Ultrasonic.h"
 #include "DCMotor.h"
+#include "LCD.h"
+
+
 
 int main(void){	
-	// INITIALIZE
-	char cmd = '\0';
+	// INITIALIZE	
+	uint8_t customChar[8] = {'<', '>', '|', '}', '{', ']', '[', '^'};
+	uint8_t customChar0[8] = {0x00, 0x0A, 0x0A, 0x0A, 0x00, 0x0E, 0x11, 0x00};		// Frowning face
 	
-	System_Clock_Init();								// Scale clock speed to 72MHz
+	// Frames for animation
+	// Frame 0						
+  uint8_t F0image01[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x07};
+  uint8_t F0image02[8] = {0x00, 0x08, 0x10, 0x10, 0x10, 0x1F, 0x1F, 0x18};
+  uint8_t F0image03[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x04};
+	uint8_t F0image10[8] = {0x06, 0x0D, 0x1B, 0x13, 0x07, 0x0F, 0x0F, 0x1F};
+  uint8_t F0image11[8] = {0x0F, 0x1E, 0x1C, 0x18, 0x18, 0x10, 0x10, 0x00};
+	// Frame 1
+  uint8_t F1image00[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03};
+  uint8_t F1image01[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x19, 0x17};
+  uint8_t F1image02[8] = {0x00, 0x08, 0x10, 0x10, 0x10, 0x1F, 0x1F, 0x18};
+  uint8_t F1image03[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x04};
+  uint8_t F1image10[8] = {0x06, 0x05, 0x03, 0x03, 0x07, 0x0F, 0x0F, 0x1F};
+  uint8_t F1image11[8] = {0x0F, 0x1E, 0x1C, 0x18, 0x18, 0x10, 0x10, 0x00};
+	// Frame 2
+  uint8_t F2image01[8] = {0x00, 0x00, 0x00, 0x01, 0x07, 0x04, 0x19, 0x17};
+  uint8_t F2image02[8] = {0x00, 0x08, 0x10, 0x10, 0x10, 0x1F, 0x1F, 0x18};
+  uint8_t F2image03[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x04};
+	uint8_t F2image10[8] = {0x00, 0x01, 0x03, 0x03, 0x07, 0x0F, 0x0F, 0x1F};
+  uint8_t F2image11[8] = {0x0F, 0x1E, 0x1C, 0x18, 0x18, 0x10, 0x10, 0x00};
+	// Frame 3
+  uint8_t F3image01[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x07};
+  uint8_t F3image02[8] = {0x00, 0x08, 0x10, 0x10, 0x10, 0x1F, 0x1F, 0x1A};
+  uint8_t F3image03[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x04};
+	uint8_t F3image10[8] = {0x00, 0x01, 0x03, 0x03, 0x07, 0x0F, 0x0F, 0x1F};
+  uint8_t F3image11[8] = {0x0F, 0x1E, 0x1C, 0x18, 0x18, 0x10, 0x10, 0x00};
+  uint8_t F3image12[8] = {0x02, 0x07, 0x07, 0x07, 0x07, 0x07, 0x02, 0x00};
+	// Frame 4
+	uint8_t F4image01[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x07};
+  uint8_t F4image02[8] = {0x00, 0x08, 0x10, 0x10, 0x10, 0x1F, 0x1F, 0x1A};
+  uint8_t F4image03[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x18, 0x18, 0x04};
+  uint8_t F4image10[8] = {0x00, 0x01, 0x03, 0x03, 0x07, 0x0F, 0x0F, 0x1F};
+  uint8_t F4image11[8] = {0x0F, 0x1E, 0x1C, 0x18, 0x18, 0x11, 0x10, 0x00};
+  uint8_t F4image12[8] = {0x02, 0x04, 0x0B, 0x15, 0x1A, 0x15, 0x1A, 0x0E};
+  uint8_t F4image13[8] = {0x00, 0x00, 0x00, 0x10, 0x10, 0x00, 0x00, 0x00};
+	// Frame 5
+  uint8_t F5image01[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x03};
+  uint8_t F5image02[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10};
+  uint8_t F5image12[8] = {0x0A, 0x14, 0x0B, 0x15, 0x1A, 0x15, 0x1A, 0x0E};
+  uint8_t F5image13[8] = {0x00, 0x00, 0x00, 0x10, 0x10, 0x00, 0x00, 0x00};
+  uint8_t F5image11[8] = {0x0D, 0x0A, 0x0D, 0x07, 0x00, 0x00, 0x00, 0x00};
+	// Frame 6
+  uint8_t F6image02[8] = {0x00, 0x04, 0x0A, 0x0A, 0x11, 0x03, 0x06, 0x0C};
+  uint8_t F6image01[8] = {0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x02, 0x01};
+  uint8_t F6image03[8] = {0x00, 0x00, 0x10, 0x18, 0x00, 0x00, 0x18, 0x04};
+  uint8_t F6image12[8] = {0x04, 0x04, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint8_t F6image13[8] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	// Frame 7
+	uint8_t F7image02[8] = {0x00, 0x04, 0x0A, 0x0A, 0x11, 0x03, 0x06, 0x0C};
+  uint8_t F7image01[8] = {0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x02, 0x01};
+  uint8_t F7image03[8] = {0x00, 0x00, 0x10, 0x18, 0x00, 0x00, 0x00, 0x00};
+  uint8_t F7image12[8] = {0x15, 0x0E, 0x0E, 0x04, 0x15, 0x0E, 0x04, 0x1F};
+	
+	System_Clock_Init();					// Scale clock speed to 72MHz
 	SystemCoreClockUpdate();
 	
 	UART2_Init();
+	Stepper_Init();
+	RCServo_Init();
+	LED_Init();
+	KeyPad_Init();
 	DCMotor_Init();
+	Ultra_InitTrigger();
+	Ultra_InitEcho();
+	LCD_Init();
+	LCD_SetCustomCharIdentifier(customChar);
 	
-	// Print menu
-	UART_printf("ESS Lab 7 - DC Motor\n\n");
-	UART_printf("Q. Left motor STOP\n");
-	UART_printf("W. Left motor FWD\n");
-	UART_printf("E. Left motor BWD\n");
-	UART_printf("A. Right motor STOP\n");
-	UART_printf("S. Right motor FWD\n");
-	UART_printf("D. Right motor BWD\n");
-	UART_printf("1. LEFT 0 duty cycle\n");
-	UART_printf("2. LEFT 50 duty cycle\n");
-	UART_printf("3. LEFT 100 duty cycle\n");
-	UART_printf("4. RIGHT 0 duty cycle\n");
-	UART_printf("5. RIGHT 50 duty cycle\n");
-	UART_printf("6. RIGHT 100 duty cycle\n");
-	UART_printf("-----------------------\n");
-	UART_printf("Y. STOP both motors\n");
-	UART_printf("U. FWD 50%% both motors\n");
-	UART_printf("I. FWD 100%% both motors\n");
-	UART_printf("O. BWD 50%% both motors \n");
-	UART_printf("P. BWD 100%% both motors\n");
-	UART_printf("H. 0-point left turn\n");
-	UART_printf("J. 0-point right turn\n");
-	UART_printf("V. left motor 50%% FWD\n");
-	UART_printf("B. left motor 50%% BWD\n");
-	UART_printf("N. right motor 50%% FWD\n");
-	UART_printf("M. right motor 50%% BWD\n");
-	UART_printf("\nOUTPUT:\n\n");
-
 	// PROGRAM LOOP
 	while(1){
-		cmd = UART_getcNB();
-		
-		switch(cmd){
-			case('q'):{
-				UART_printf("LEFT STOP\n");
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_STOP);
-				break;
-			}
-			case('w'):{
-				UART_printf("LEFT FWD\n");
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
-				break;
-			}
-			case('e'):{
-				UART_printf("LEFT BWD\n");
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
-				break;
-			}
-			case('a'):{
-				UART_printf("RIGHT STOP\n");
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_STOP);
-				break;
-			}
-			case('s'):{
-				UART_printf("RIGHT FWD\n");
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
-				break;
-			}
-			case('d'):{
-				UART_printf("RIGHT BWD\n");
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
-				break;
-			}
-			case('1'):{
-				UART_printf("LEFT 0\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 0);
-				break;
-			}
-			case('2'):{
-				UART_printf("LEFT 50\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				break;
-			}
-			case('3'):{
-				UART_printf("LEFT 100\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 100);
-				break;
-			}
-			case('4'):{
-				UART_printf("RIGHT 0\n");
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 0);
-				break;
-			}
-			case('5'):{
-				UART_printf("RIGHT 50\n");
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				break;
-			}
-			case('6'):{
-				UART_printf("RIGHT 100\n");
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 100);
-				break;
-			}
-			// Combined control
-			// STOP both motors
-			case('y'):{
-				UART_printf("STOP both motors\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 0);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 0);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_STOP);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_STOP);
-				break;
-			}
-			// FWD 50% both motors
-			case('u'):{
-				UART_printf("FWD 50%% both motors\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
-				break;
-			}
-			// FWD 100% both motors
-			case('i'):{
-				UART_printf("FWD 100%% both motors\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 100);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 100);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
-				break;
-			}
-			// BWD 50% both motors
-			case('o'):{
-				UART_printf("BWD 50%% both motors\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
-				break;
-			}
-			// BWD 100% both motors
-			case('p'):{
-				UART_printf("BWD 100%% both motors\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 100);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 100);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
-				break;
-			}
-			// 0-point left turn
-			case('h'):{
-				UART_printf("0-point left turn\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
-				break;
-			}
-			// 0-point right turn
-			case('j'):{
-				UART_printf("0-point right turn\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
-				break;
-			}
-			// left motor 50% FWD
-			case('v'):{
-				UART_printf("Left motor 50%% FWD\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_FWD);
-				break;
-			}
-			// left motor 50% BWD
-			case('b'):{
-				UART_printf("Left motor 50%% BWD\n");
-				DCMotor_SetSpeed(DCMOTOR_LEFT, 50);
-				DCMotor_SetDir(DCMOTOR_LEFT, DCMOTOR_BWD);
-				break;
-			}
-			// right motor 50% FWD
-			case('n'):{
-				UART_printf("Right motor 50%% FWD\n");
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_FWD);
-				break;
-			}
-			// left motor 50% BWD
-			case('m'):{
-				UART_printf("Right motor 50%% BWD\n");
-				DCMotor_SetSpeed(DCMOTOR_RIGHT, 50);
-				DCMotor_SetDir(DCMOTOR_RIGHT, DCMOTOR_BWD);
-				break;
-			}
-			default:{
-			}
-		}
-		
-		cmd = '\0';
+		// frame 00
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F0image01, 0);
+		LCD_CustomChar(F0image02, 1);
+		LCD_CustomChar(F0image03, 2);
+		LCD_CustomChar(F0image10, 3);
+		LCD_CustomChar(F0image11, 4);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c%c Hello!\n%c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4]);
+		Delay_ms(250);
+		// frame 01
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F1image00, 0);
+		LCD_CustomChar(F1image01, 1);
+		LCD_CustomChar(F1image02, 2);
+		LCD_CustomChar(F1image03, 3);
+		LCD_CustomChar(F1image10, 4);
+		LCD_CustomChar(F1image11, 5);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf("%c%c%c%c Hello!\n%c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4], customChar[5]);
+    Delay_ms(250);
+		// frame 02
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F2image01, 0);
+		LCD_CustomChar(F2image02, 1);
+		LCD_CustomChar(F2image03, 2);
+		LCD_CustomChar(F2image10, 3);
+		LCD_CustomChar(F2image11, 4);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c%c Hello!\n%c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4]);
+    Delay_ms(250);
+		// frame 03
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F3image01, 0);
+		LCD_CustomChar(F3image02, 1);
+		LCD_CustomChar(F3image03, 2);
+		LCD_CustomChar(F3image10, 3);
+		LCD_CustomChar(F3image11, 4);
+		LCD_CustomChar(F3image12, 5);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c%c Hello!\n%c%c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4]);
+    Delay_ms(700);
+		// frame 04
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F4image01, 0);
+		LCD_CustomChar(F4image02, 1);
+		LCD_CustomChar(F4image03, 2);
+		LCD_CustomChar(F4image10, 3);
+		LCD_CustomChar(F4image11, 4);
+		LCD_CustomChar(F4image12, 5);
+		LCD_CustomChar(F4image13, 6);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c%c Hello!\n%c%c%c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4],customChar[5],customChar[6]);
+    Delay_ms(250);
+		// frame 05
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F5image01, 0);
+		LCD_CustomChar(F5image02, 1);
+		LCD_CustomChar(F5image11, 2);
+		LCD_CustomChar(F5image12, 3);
+		LCD_CustomChar(F5image13, 4);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c  Hello!\n %c%c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4],customChar[5],customChar[6]);
+    Delay_ms(250);
+		// frame 06
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F6image01, 0);
+		LCD_CustomChar(F6image02, 1);
+		LCD_CustomChar(F6image03, 2);
+		LCD_CustomChar(F6image12, 3);
+		LCD_CustomChar(F6image13, 4);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c%c Hello!\n  %c%c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4],customChar[5],customChar[6]);
+    Delay_ms(700);
+		// frame 07
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_CustomChar(F7image01, 0);
+		LCD_CustomChar(F7image02, 1);
+		LCD_CustomChar(F7image03, 2);
+		LCD_CustomChar(F7image12, 3);
+		LCD_Clear();
+		LCD_HomeCursor();
+		LCD_printf(" %c%c%c Hello!\n  %c", customChar[0],customChar[1],customChar[2],customChar[3],customChar[4],customChar[5],customChar[6]);
+
+    Delay_ms(1250);
 	}
 }

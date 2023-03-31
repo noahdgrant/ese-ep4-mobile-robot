@@ -10,7 +10,7 @@
 #include "Utility.h"
 	
 /******************************************************************
-*									STATIC VARIABLES									  						*
+*												STATIC VARIABLES									  			*
 ******************************************************************/	
 	
 static uint32_t Global_UltraEcho;

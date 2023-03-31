@@ -166,6 +166,7 @@ void DCMotor_SetDir(uint8_t motor, uint8_t dir){
 		// Left motor stop
 		CLEAR_BITS(GPIOC->ODR, GPIO_ODR_12);
 		CLEAR_BITS(GPIOC->ODR, GPIO_ODR_13);
+		Delay_ms(5);
 
 		// Left motor fwd
 		if(dir == DCMOTOR_FWD){
@@ -183,6 +184,7 @@ void DCMotor_SetDir(uint8_t motor, uint8_t dir){
 		// Right motor stop
 		CLEAR_BITS(GPIOC->ODR, GPIO_ODR_8);
 		CLEAR_BITS(GPIOC->ODR, GPIO_ODR_9);
+		Delay_ms(5);
 		
 		// Right motor fwd
 		if(dir == DCMOTOR_FWD){

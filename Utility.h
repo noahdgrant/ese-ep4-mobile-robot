@@ -23,8 +23,8 @@
 #define IS_BIT_CLEAR(port, bits) ((port) & (~(bits)))
 
 // Nibble Selection
-#define LO_NYBBLE(value)	((value) & 0x0F)
-#define HI_NYBBLE(value)	((value >> 4) & 0x0F)
+#define LO_NYBBLE(value)	((value) & 0x0FUL)
+#define HI_NYBBLE(value)	((value >> 4UL) & 0x0FUL)
 
 // Port Name Macro
 #define GPIO(port) GPIOx(port)

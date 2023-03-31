@@ -5,8 +5,8 @@
 * Description: LCD functions for mobile robot.
 ********************************************************************************/
 
-#ifndef __LCD_H
-#define __LCD_H
+#ifndef LCD_H
+#define LCD_H
 
 #include "stm32f303xe.h"
 
@@ -58,20 +58,20 @@
 
 // GPIO Port Constants
 #define LCD_GPIO_PORT						A
-#define LCD_PORT								GPIOA -> ODR
+#define LCD_PORT								GPIOA->ODR
 #define LCD_RS_BIT							(1UL << 6)				//PA6
 #define LCD_E_BIT								(1UL << 7)				//PA7
-#define LCD_BUS_BIT							(0xFUL << 8UL)		//PA8, 9, 10, and 11
-#define LCD_BUS_BIT_POS					8UL
+#define LCD_BUS_BIT							(0xFUL << 8)		//PA8, 9, 10, and 11
+#define LCD_BUS_BIT_POS					8
 
 #define LCD_PORT_BITS						(LCD_RS_BIT | LCD_E_BIT | LCD_BUS_BIT)	//0x07E0	// bit 6, 7, 8, 9, and 11
 
 // LCD Operation Helper Macros
-#define LCD_E_LO					CLEAR_BITS( LCD_PORT, LCD_E_BIT )
-#define LCD_E_HI					SET_BITS( LCD_PORT, LCD_E_BIT )
-#define LCD_RS_IR					CLEAR_BITS( LCD_PORT, LCD_RS_BIT )
-#define LCD_RS_DR					SET_BITS( LCD_PORT, LCD_RS_BIT )
-#define LCD_BUS( value )	FORCE_BITS( LCD_PORT, LCD_BUS_BIT, (value) << LCD_BUS_BIT_POS )
+#define LCD_E_LO					CLEAR_BITS(LCD_PORT, LCD_E_BIT)
+#define LCD_E_HI					SET_BITS(LCD_PORT, LCD_E_BIT)
+#define LCD_RS_IR					CLEAR_BITS( LCD_PORT, LCD_RS_BIT)
+#define LCD_RS_DR					SET_BITS(LCD_PORT, LCD_RS_BIT)
+#define LCD_BUS(value)		FORCE_BITS(LCD_PORT, LCD_BUS_BIT, (value) << LCD_BUS_BIT_POS)
 
 // Other Constants
 #define MAX_LCD_BUFSIZE		81	//80 characters + 1 null char
@@ -88,7 +88,6 @@ void LCD_putc(unsigned char ch);
 void LCD_puts(char* str);
 void LCD_printf(char* str, ... );
 
-void LCD_customc(uint8_t character[8], uint8_t address);
+void LCD_CustomChar(uint8_t character[8], uint8_t address);
 
 #endif
-

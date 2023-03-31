@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include "stm32f303xe.h"
 #include "LCD.h"
 #include "Utility.h"
 
@@ -28,7 +27,6 @@ static void LCD_GPIO_Init(void){
 		GPIO_MODER_SET(A, i, GPIO_MODE_OUT);
 		GPIO_OTYPER_SET(A, i, GPIO_OTYPE_PP);
 		GPIO_PUPDR_SET(A, i, GPIO_PUPD_NO);
-		GPIO_OSPEEDR_SET(A, i, GPIO_OSPEED_LOW);		// ?? - found online
 	}
 }
 
@@ -44,13 +42,11 @@ static void LCD_GPIO_Init(void){
 void LCD_Init(void){	
 	LCD_GPIO_Init();
 	
-	Delay_ms(20);														// Wait 10ms
-	
 	// Get ready for LCD communication
 	CLEAR_BITS(LCD_PORT, LCD_PORT_BITS);		// Clear all bits on the LCD port
 	LCD_E_LO;																// Set E LOW
 	LCD_RS_IR;															// Set RS to instruction
-	Delay_ms(15);														// Wait 10ms
+	Delay_ms(10);														// Wait 10ms
 	
 	// Syncing sequence 1
 	// Send 0x03 on the data bus, wait for 5ms
@@ -91,7 +87,7 @@ void LCD_Init(void){
 	LCD_cmd(LCD_CMD_ENTRY | LCD_ENTRY_MOVE_CURSOR);
 	
 	// Send display command again to LCD to turn ON LCD with no cursor display and no cursor blinking
-	LCD_cmd(LCD_CMD_DISPLAY | LCD_DISPLAY_NOBLINK | LCD_DISPLAY_NOCURSOR);
+	LCD_cmd(LCD_CMD_DISPLAY | LCD_DISPLAY_ON | LCD_DISPLAY_NOBLINK | LCD_DISPLAY_NOCURSOR);
 }
 
 /*************************************************
@@ -103,7 +99,6 @@ void LCD_Clear(void){
 	Delay_ms(LCD_STD_CMD_DELAY);
 	LCD_cmd(LCD_CMD_CLEAR);
 	Delay_ms(LCD_LONG_CMD_DELAY);
-	//LCD_cmd(0x0);			// ?? 
 }
 
 /******************************************************************
@@ -122,21 +117,17 @@ void LCD_HomeCursor(void){
 * No return value.
 *************************************************/
 void LCD_cmd(uint8_t cmd){
-	//Delay_ms(LCD_STD_CMD_DELAY);		// this shifts the LCD output during startup ??
+	Delay_ms(LCD_STD_CMD_DELAY);
 	
 	LCD_E_LO;
 	LCD_RS_IR;
 	
-	Delay_ms(TEST_DELAY);
 	LCD_E_HI;
 	LCD_BUS(HI_NYBBLE(cmd));
-	Delay_ms(TEST_DELAY);
 	LCD_E_LO;
 	
-	Delay_ms(TEST_DELAY);
 	LCD_E_HI;
 	LCD_BUS(LO_NYBBLE(cmd));
-	Delay_ms(TEST_DELAY);
 	LCD_E_LO;
 }
 
@@ -146,21 +137,17 @@ void LCD_cmd(uint8_t cmd){
 * No return value.
 *************************************************/
 void LCD_data(uint8_t data){
-	//Delay_ms(LCD_STD_CMD_DELAY);
+	Delay_ms(LCD_STD_CMD_DELAY);
 	
 	LCD_E_LO;
 	LCD_RS_DR;
 	
-	Delay_ms(TEST_DELAY);
 	LCD_E_HI;
 	LCD_BUS(HI_NYBBLE(data));
-	Delay_ms(TEST_DELAY);
 	LCD_E_LO;
 	
-	Delay_ms(TEST_DELAY);
 	LCD_E_HI;
 	LCD_BUS(LO_NYBBLE(data));
-	Delay_ms(TEST_DELAY);
 	LCD_E_LO;
 }
 
@@ -171,7 +158,7 @@ void LCD_data(uint8_t data){
 *************************************************/
 void LCD_putc(unsigned char ch){
 	if(ch == '\n'){
-		LCD_cmd(LCD_CMD_SETDDADDR | LCD_DDRAM_ADDR_LINE2); 		// maybe toggle
+		LCD_cmd(LCD_CMD_SETDDADDR | LCD_DDRAM_ADDR_LINE2); 		// Maybe toggle in the future.
 	}
 	else if(ch == '\r'){
 		LCD_HomeCursor();
@@ -213,7 +200,26 @@ void LCD_printf(char* str, ... ){
 * address			- The address to store the customer character.
 * No return value.
 ************************************************************/
-void LCD_customc(uint8_t character[8], uint8_t address){
+void LCD_CustomChar(uint8_t character[8], uint8_t address){
+		/*
+	example custom font: smile face
+	// Select CGRAM and set address to 0x00
+	LCD_SendCmd(0x40 + 0x00);
+	Delay(4); // Wait > 39us
+	// Define smile face
+	LCD_SendData(0x00); // 1st row byte
+	LCD_SendData(0x0A); // 2nd row byte
+	LCD_SendData(0x0A); // 3rd row byte
+	LCD_SendData(0x0A); // 4th row byte
+	LCD_SendData(0x00); // 5th row byte
+	LCD_SendData(0x11); // 6th row byte
+	LCD_SendData(0x0E); // 7th row byte
+	LCD_SendData(0x00); // 8th row byte
+	// Select display RAM & set address to 0
+	LCD_SendCmd(LCD_CMD_SETDDADDR); // First character
+	LCD_SendData(0x00); // Display the font
+	*/
+	
 	//up to 8 custom characters can be added can be accessed in cgram character code 0x00 to 0x07
 	LCD_cmd(LCD_CMD_CGRAMADDR + address);
 	Delay_ms(4); 								// Wait > 39us
@@ -222,25 +228,8 @@ void LCD_customc(uint8_t character[8], uint8_t address){
 	}
 
 	// Select display RAM & set address to 0
-	LCD_cmd(0x80); 				// First character
-	LCD_data(address); 		// Display the font
+	LCD_cmd(LCD_CMD_SETDDADDR); 				// First character
+	//LCD_data(address); 		// Display the font
 }
 
-/*
-example custom font: smile face
-// Select CGRAM and set address to 0x00
-LCD_SendCmd(0x40 + 0x00);
-Delay(4); // Wait > 39us
-// Define smile face
-LCD_SendData(0x00); // 1st row byte
-LCD_SendData(0x0A); // 2nd row byte
-LCD_SendData(0x0A); // 3rd row byte
-LCD_SendData(0x0A); // 4th row byte
-LCD_SendData(0x00); // 5th row byte
-LCD_SendData(0x11); // 6th row byte
-LCD_SendData(0x0E); // 7th row byte
-LCD_SendData(0x00); // 8th row byte
-// Select display RAM & set address to 0
-LCD_SendCmd(0x80); // First character
-LCD_SendData(0x00); // Display the font
-*/
+

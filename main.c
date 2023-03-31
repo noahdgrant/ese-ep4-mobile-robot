@@ -19,6 +19,8 @@
 
 int main(void){	
 	// INITIALIZE	
+	uint8_t customChar[8] = {0x00, 0x0A, 0x0A, 0x0A, 0x00, 0x0E, 0x11, 0x00};
+	
 	System_Clock_Init();					// Scale clock speed to 72MHz
 	SystemCoreClockUpdate();
 	
@@ -34,10 +36,13 @@ int main(void){
 	
 	LCD_Clear();
 	LCD_HomeCursor();
-	LCD_printf("1");
+	LCD_CustomChar(customChar, 0);
+	LCD_printf("Test: \x0");
+	//LCD_data(0x00);
+	//LCD_printf("A");
 
 	// PROGRAM LOOP
 	while(1){
-		LCD_printf("1");
+		
 	}
 }

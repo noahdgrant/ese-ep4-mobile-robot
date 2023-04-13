@@ -15,7 +15,7 @@
 *												STATIC VARIABLES									  			*
 ******************************************************************/	
 
-static char customChar[8];
+static char customChar[8] = {'<', '>', '|', '}', '{', ']', '[', '^'};		// Default custom character replacements
 
 
 /******************************************************************

@@ -41,9 +41,7 @@ void Encoder_Init(void){
 	ENABLE_GPIO_CLOCK(A);									// Enable GPIO Port A	
 	GPIO_MODER_SET(A, 0, GPIO_MODE_AF);
 	GPIO_MODER_SET(A, 1, GPIO_MODE_AF);
-	GPIO_OTYPER_SET(A, 0, GPIO_OTYPE_PP);
-	GPIO_OTYPER_SET(A, 1, GPIO_OTYPE_PP);
-	GPIO_PUPDR_SET(A, 0, GPIO_PUPD_NO);
+	GPIO_PUPDR_SET(A, 0, GPIO_PUPD_NO);		// ?? Scott says this should be Pull-up
 	GPIO_PUPDR_SET(A, 1, GPIO_PUPD_NO);
 	GPIO_AFR_SET(A, 0, 1);								// TIM2 CH1
 	GPIO_AFR_SET(A, 1, 1);								// TIM2 CH2
@@ -60,26 +58,24 @@ void Encoder_Init(void){
 	
 	
 	// Configure TIM2 CH1 for input capture on Left Encoder
-	SET_BITS(TIM2->CCMR1, TIM_CCMR1_CC1S_0);		// Input capture mode for CH1 (normal mode  0%01)
-	SET_BITS(TIM2->CCER, TIM_CCER_CC1E);				// ENABLE_GPIO_CLOCK input capture for CH1
-	CLEAR_BITS(TIM2->CCER, TIM_CCER_CC1P);			// Detect rising edges (by clearing both input capture mode bits)
-	CLEAR_BITS(TIM2->CCER, TIM_CCER_CC1NP);
-	CLEAR_BITS(TIM2->CCR1, TIM_CCR1_CCR1);			// Clear garbage values from CCR1
+	SET_BITS(TIM2->CCMR1, TIM_CCMR1_CC1S_0);										// Input capture mode for CH1 (normal mode  0%01)
+	SET_BITS(TIM2->CCER, TIM_CCER_CC1E);												// ENABLE_GPIO_CLOCK input capture for CH1
+	CLEAR_BITS(TIM2->CCER, TIM_CCER_CC1P & TIM_CCER_CC1NP);			// Detect rising edges (by clearing both input capture mode bits)
+	CLEAR_BITS(TIM2->CCR1, TIM_CCR1_CCR1);											// Clear garbage values from CCR1
 	
 	
 	// Configure TIM2 CH2 for input capture on Right Encoder
-	SET_BITS(TIM2->CCMR1, TIM_CCMR1_CC2S_0);		// Input capture mode for CH2 (normal mode  0%01)
-	SET_BITS(TIM2->CCER, TIM_CCER_CC2E);				// ENABLE_GPIO_CLOCK input capture for CH2
-	CLEAR_BITS(TIM2->CCER, TIM_CCER_CC2P);			// Detect rising edges (by clearing both input capture mode bits)
-	CLEAR_BITS(TIM2->CCER, TIM_CCER_CC2NP);	
-	CLEAR_BITS(TIM2->CCR2, TIM_CCR2_CCR2);			// Clear garbage values from CCR2
-	
+	SET_BITS(TIM2->CCMR1, TIM_CCMR1_CC2S_0);										// Input capture mode for CH2 (normal mode  0%01)
+	SET_BITS(TIM2->CCER, TIM_CCER_CC2E);												// ENABLE_GPIO_CLOCK input capture for CH2
+	CLEAR_BITS(TIM2->CCER, TIM_CCER_CC2P & TIM_CCER_CC2NP);			// Detect rising edges (by clearing both input capture mode bits)
+	CLEAR_BITS(TIM2->CCR2, TIM_CCR2_CCR2);											// Clear garbage values from CCR2
+
 	
 	// Configure TIM2 to generate interrupts and configure NVIC to respond
-	SET_BITS(TIM2->DIER, TIM_DIER_CC1IE);				// Enable encoder channels to trigger IRQ
-	SET_BITS(TIM2->DIER, TIM_DIER_CC2IE);	
-	NVIC_EnableIRQ(TIM2_IRQn);									// Enable TIM2 IRQ (TIM2_IRQn) in NVIC
-	NVIC_SetPriority(TIM2_IRQn, 9);							// Set NVIC priority
+	SET_BITS(TIM2->DIER, TIM_DIER_CC1IE);						// Enable encoder CH1 to trigger IRQ
+	SET_BITS(TIM2->DIER, TIM_DIER_CC2IE);						// Enable encoder CH2 to trigger IRQ
+	NVIC_EnableIRQ(TIM2_IRQn);											// Enable TIM2 IRQ (TIM2_IRQn) in NVIC
+	NVIC_SetPriority(TIM2_IRQn, ENCODER_PRIORITY);	// Set NVIC priority
 	 
 	 
 	// Start TIM2 CH1 and CH2 Input Captures
@@ -106,17 +102,15 @@ void TIM2_IRQHandler(void){
 	}	
 }
 
-/*****************************************************************
-* Encoder_CalculateSpeed() - Calculates the speed of each encoder
+/****************************************************************************
+* Encoder_CalculateSpeed() - Calculates the speed of each encoder in us/vane
 * No inputs.
 * No return value.
-*****************************************************************/
+****************************************************************************/
 void Encoder_CalculateSpeed(void){
 		Global_LeftEncoderPeriod = leftEncoder[0] - leftEncoder[1];			// Calculate encoder period (current - previous)
 		leftEncoder[1] = leftEncoder[0];																// Update previous measurement to current measurement
 	
 		Global_RightEncoderPeriod = rightEncoder[0] - rightEncoder[1];	// Calculate encoder period
 		rightEncoder[1] = rightEncoder[0];															// Update previous measurement to current measurement
-	
-	// ?? NEED TO DEAL WITH TIMER WRAPAROUND
 }

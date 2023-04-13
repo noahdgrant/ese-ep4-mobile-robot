@@ -123,6 +123,9 @@ void DCMotor_SetSpeed(uint8_t motor, uint16_t dutyCycle){
 	if(dutyCycle > 100){
 		dutyCycle = 100;
 	}
+	else if(dutyCycle < 50){
+		dutyCycle = 50;		// The DC motors do not start spinning if the duty cycle is < 50%
+	}
 	
 	// Convert to ms ON-time
 	dutyCycle *= 10;	// dutyCycle = (dutyCycle * 1000) / 100
@@ -197,4 +200,55 @@ void DCMotor_SetDir(uint8_t motor, uint8_t dir){
 			SET_BITS(GPIOC->ODR, GPIO_ODR_9);
 		}
 	}
+}
+
+/*******************************************************************
+* DCMotor_SetMotor() - Set the speed and direction of one motor.
+* dir						- motor direction.
+* dutyCycle			- motor duty cycle.
+* No return value.
+*******************************************************************/	
+void DCMotor_SetMotor(uint8_t motor, uint8_t dir, uint16_t dutyCycle){
+	DCMotor_SetDir(motor, dir);
+	DCMotor_SetSpeed(motor, dutyCycle);
+}
+
+/*******************************************************************
+* DCMotor_SetMotors() - Sets the speed and direction of both motors.
+* leftDir						- Left motor direction.
+* leftDutyCycle			- Left motor duty cycle.
+* rightDir					- Right motor direction.
+* rightDutyCycle		- Right motor duty cycle.
+* No return value.
+*******************************************************************/	
+void DCMotor_SetMotors(uint8_t leftDir, uint16_t leftDutyCycle, uint8_t rightDir, uint16_t rightDutyCycle){
+	DCMotor_SetMotor(DCMOTOR_LEFT, leftDir, leftDutyCycle);
+	DCMotor_SetMotor(DCMOTOR_RIGHT, rightDir, rightDutyCycle);
+}
+
+/*******************************************************************
+* DCMotor_Stop() - Stops both motors.
+* No inputs.
+* No return value.
+*******************************************************************/	
+void DCMotor_Stop(void){
+	DCMotor_SetMotors(DCMOTOR_STOP, 0, DCMOTOR_STOP, 0);
+}
+
+/*******************************************************************
+* DCMotor_Forward() - Both motors spin forwards.
+* dutyCycle		- The desired % of duty cycle for ON-time.
+* No return value.
+*******************************************************************/	
+void DCMotor_Forward(uint16_t dutyCycle){
+	DCMotor_SetMotors(DCMOTOR_FWD, dutyCycle, DCMOTOR_FWD, dutyCycle);
+}
+
+/*******************************************************************
+* DCMotor_Backward() - Both motors spin backwards.
+* dutyCycle		- The desired % of duty cycle for ON-time.
+* No return value.
+*******************************************************************/	
+void DCMotor_Backward(uint16_t dutyCycle){
+	DCMotor_SetMotors(DCMOTOR_BWD, dutyCycle, DCMOTOR_BWD, dutyCycle);
 }

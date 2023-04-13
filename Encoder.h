@@ -22,6 +22,8 @@
 #define RIGHT_ENCODER_CH		CCR2
 #define RIGHT_ENCODER_PIN		1  				//PA1
 
+#define ENCODER_PRIORITY 9
+
 #define LEFT_ENC	0
 #define RIGHT_ENC 1
 

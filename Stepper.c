@@ -108,8 +108,6 @@ void Stepper_Step(uint8_t stepType){
 		// Turn motor OFF
 		case 0: {
 			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);	
-			UART_printf("Step Type: %d, Step Count: %d, Step Pattern: %#04X\n", stepType, 0x7 & stepCounter, stepPatterns[0x7 & stepCounter]);
-	
 			lastStepType = 0;
 			lastStep = 0;
 			break;
@@ -118,8 +116,6 @@ void Stepper_Step(uint8_t stepType){
 		case 1:{
 			stepCounter += 2;
 			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);		// & with 0x7 because we just want the lower 3 bits
-			UART_printf("Step Type: %d, Step Count: %d, Step Pattern: %#04X\n", stepType, 0x7 & stepCounter, stepPatterns[0x7 & stepCounter]);
-			
 			lastStepType = 1;
 			lastStep = 2;
 			break;
@@ -128,8 +124,6 @@ void Stepper_Step(uint8_t stepType){
 		case 2:{
 			stepCounter -= 2;
 			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);		// & with 0x7 because we just want the lower 3 bits
-			UART_printf("Step Type: %d, Step Count: %d, Step Pattern: %#04X\n", stepType, 0x7 & stepCounter, stepPatterns[0x7 & stepCounter]);
-			
 			lastStepType = 2;
 			lastStep = -2;
 			break;
@@ -138,8 +132,6 @@ void Stepper_Step(uint8_t stepType){
 		case 3:{
 			stepCounter++;
 			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);		// & with 0x7 because we just want the lower 3 bits
-			UART_printf("Step Type: %d, Step Count: %d, Step Pattern: %#04X\n", stepType, 0x7 & stepCounter, stepPatterns[0x7 & stepCounter]);
-			
 			lastStepType = 3;
 			lastStep = 1;
 			break;
@@ -147,9 +139,7 @@ void Stepper_Step(uint8_t stepType){
 		// Half-step counter clockwise
 		case 4:{
 			stepCounter--;
-			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);		// & with 0x7 because we just want the lower 3 bits
-			UART_printf("Step Type: %d, Step Count: %d, Step Pattern: %#04X\n", stepType, 0x7 & stepCounter, stepPatterns[0x7 & stepCounter]);
-			
+			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);		// & with 0x7 because we just want the lower 3 bits			
 			lastStepType = 4;
 			lastStep = -1;
 			break;
@@ -158,7 +148,6 @@ void Stepper_Step(uint8_t stepType){
 		default:{
 			stepCounter += lastStep;
 			Stepper_Ouput(stepPatterns[0x7 & stepCounter]);		// & with 0x7 because we just want the lower 3 bits
-			UART_printf("Step Type: %d, Step Count: %d, Step Pattern: %#04X\n", lastStepType, 0x7 & stepCounter, stepPatterns[0x7 & stepCounter]);
 			break;
 		}
 	}

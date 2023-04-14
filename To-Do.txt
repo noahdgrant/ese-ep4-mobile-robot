@@ -1,4 +1,13 @@
 To-Do:
-- decrease delay to reduce stepper choppiness
+
+GENERAL
+- Create readme.md for project
+
+LCD
+- try reducing delays inside LCD functions
+
+SERVO
 - fix servo centre
-- DC motor needs to be greater than 50% PW
+
+ENCODER
+- Encoder value bugs out for the first check after stopping the motors

@@ -25,7 +25,7 @@ static uint32_t Global_UltraEcho;
 * No inputs.
 * No return value.
 *************************************************************/	
-void Ultra_InitTrigger(void){
+static void Ultra_InitTrigger(void){
 	// Configure GPIO Pin
 	ENABLE_GPIO_CLOCK(A);										// Enable GPIO Port A
 	GPIO_MODER_SET(A, 12, GPIO_MODE_AF);		// Set MODE to AF
@@ -58,20 +58,11 @@ void Ultra_InitTrigger(void){
 }
 
 /*************************************************************
-* Ultra_StartTrigger() - Starts the trigger timer.
-* No inputs.
-* No return value.
-*************************************************************/	
-void Ultra_StartTrigger(void){
-	SET_BITS(TIM16->CR1, TIM_CR1_CEN);	// Enable TIM16
-}
-
-/*************************************************************
 * Ultra_InitEcho() - Initialize ultrasonic echo timer.
 * No inputs.
 * No return value.
 *************************************************************/	
-void Ultra_InitEcho(void){
+static void Ultra_InitEcho(void){
 	// Configure GPIO Pin
 	ENABLE_GPIO_CLOCK(C);										// Enable GPIO Port C
 	GPIO_MODER_SET(C, 7, GPIO_MODE_AF);			// Set MODE to AF
@@ -103,6 +94,30 @@ void Ultra_InitEcho(void){
 	SET_BITS(TIM3->CR1, TIM_CR1_CEN);				// Enable TIM3 main counter
 }
 
+
+/******************************************************************
+*												PUBLIC FUNCTIONS													*
+******************************************************************/
+
+/*******************************************************************************
+* Ultra_Init() - Call the ultrasonic trigger and echo initialization functions.
+* No inputs.
+* No return value.
+*******************************************************************************/	
+void Ultra_Init(void){
+	Ultra_InitTrigger();
+	Ultra_InitEcho();
+}
+
+/*************************************************************
+* Ultra_StartTrigger() - Starts the trigger timer.
+* No inputs.
+* No return value.
+*************************************************************/	
+void Ultra_StartTrigger(void){
+	SET_BITS(TIM16->CR1, TIM_CR1_CEN);	// Enable TIM16
+}
+
 /*************************************************************
 * Ultra_EchoRx() - Checks whether echo has been received.
 * No inputs.
@@ -123,5 +138,5 @@ uint8_t Ultra_EchoRx(void){
 * Returns the distance in cm to the object infront of the sensor.
 *************************************************************/	
 uint32_t Ultra_ReadSensor(void){
-	return(Global_UltraEcho / 59);		// Equation from W7 slides (#6)
+	return(Global_UltraEcho / 59);		// Equation from ESS W7 slides (#6)
 }

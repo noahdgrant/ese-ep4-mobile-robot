@@ -108,9 +108,10 @@ void TIM2_IRQHandler(void){
 * No return value.
 ****************************************************************************/
 void Encoder_CalculateSpeed(void){
-		Global_LeftEncoderPeriod = leftEncoder[0] - leftEncoder[1];			// Calculate encoder period (current - previous)
-		leftEncoder[1] = leftEncoder[0];																// Update previous measurement to current measurement
+	Global_LeftEncoderPeriod = leftEncoder[0] - leftEncoder[1];				// Calculate encoder period (current - previous)
+	leftEncoder[1] = leftEncoder[0] = 0;															// Update previous measurement to current measurement
 	
-		Global_RightEncoderPeriod = rightEncoder[0] - rightEncoder[1];	// Calculate encoder period
-		rightEncoder[1] = rightEncoder[0];															// Update previous measurement to current measurement
+	Global_RightEncoderPeriod = rightEncoder[0] - rightEncoder[1];		// Calculate encoder period
+	rightEncoder[1] = rightEncoder[0] = 0;														// Update previous measurement to current measurement
+
 }
